@@ -1,0 +1,64 @@
+---
+- name: ensure package dependencies
+  become: true
+  ansible.builtin.apt:
+    state: present
+    update_cache: yes
+    cache_valid_time: 600
+    name:
+      - apt-transport-https
+
+- name: add microsoft apt key
+  become: true
+  ansible.builtin.apt_key:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    state: present
+    # TODO - Verify key
+
+- name: add microsoft apt repository
+  become: true
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main
+  register: vscode_repository
+
+- name: update package cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+  when: vscode_repository.changed
+
+- name: install vscode
+  become: true
+  ansible.builtin.apt:
+    state: present
+    name: code
+
+- name: ensure vscode user directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config/Code/User"
+    state: directory
+
+- name: configure user settings
+  ansible.builtin.copy:
+    src: "{{ vscode_user_settings }}"
+    dest: "{{ ansible_user_dir }}/.config/Code/User/settings.json"
+  when: vscode_user_settings
+
+- name: configure user keybindings
+  ansible.builtin.copy:
+    src: "{{ vscode_user_keybindings }}"
+    dest: "{{ ansible_user_dir }}/.config/Code/User/keybindings.json"
+  when: vscode_user_keybindings
+
+- name: configure user tasks
+  ansible.builtin.copy:
+    src: "{{ vscode_user_tasks }}"
+    dest: "{{ ansible_user_dir }}/.config/Code/User/tasks.json"
+  when: vscode_user_tasks
+
+- name: install extensions
+  ansible.builtin.command: "code --install-extension {{ item }}"
+  with_items: "{{ vscode_extensions }}"
+  when: vscode_extensions | length > 0
+  register: vscode_extensions
+  changed_when: "'already installed' not in vscode_extensions.stdout"
