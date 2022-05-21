@@ -1,0 +1,86 @@
+---
+- name: Install vim from source
+  block:
+    - name: Install vim package requirements
+      become: yes
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+        cache_valid_time: "86400" # One day
+      with_items:
+        - git
+        - make
+        - clang
+        - libtool-bin
+
+    - name: Clone vim repository
+      ansible.builtin.git:
+        repo: https://github.com/vim/vim.git
+        depth: 1
+        dest: "{{ vim_clone_path }}"
+        version: "{{ vim_version }}"
+      register: clone
+
+    - name: Install extra vim package dependencies
+      become: yes
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ vim_extra_packages }}"
+      register: packages
+
+    - name: Check if extra vim features has changed
+      ansible.builtin.copy:
+        content: "{{ vim_extra_features }}"
+        dest: "{{ vim_clone_path }}/ansible_managed_extra_features.txt"
+      when: vim_extra_features
+      register: features
+
+    - name: Ensure clean configuration cache
+      ansible.builtin.file:
+        path: "{{ vim_clone_path }}/src/auto/config.cache"
+        state: absent
+      when: packages.changed or features.changed or clone.changed
+
+    - name: Configure vim
+      ansible.builtin.command:
+        cmd: "./configure {{ vim_extra_features | join('\n') }}"
+        chdir: "{{ vim_clone_path }}"
+      register: configure
+      when: packages.changed or features.changed or clone.changed
+
+    - name: Compile vim
+      community.general.make:
+        chdir: "{{ vim_clone_path }}/src"
+      register: compile
+      when: configure.changed
+
+    - name: Install vim
+      become: yes
+      community.general.make:
+        chdir: "{{ vim_clone_path }}/src"
+        target: install
+      when: compile.changed
+
+- name: Install plugin package dependencies
+  become: yes
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ vim_plugin_extra_packages }}"
+
+- name: Copy dotfiles in place
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ ansible_user_dir }}/{{ item | basename }}"
+  with_items: "{{ vim_dotfiles }}"
+
+- name: Apply native plugin manager
+  ansible.builtin.include_tasks: "vim-native.yml"
+  when: vim_plugin_manager ==  "native"
+
+- name: Apply vim-plug plugin manager
+  ansible.builtin.include_tasks: "vim-plug.yml"
+  when: vim_plugin_manager == "vim-plug"
+

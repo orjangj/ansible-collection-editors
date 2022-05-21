@@ -1,0 +1,11 @@
+---
+vim_clone_path: "{{ ansible_user_dir }}/vim"
+vim_dotfiles: []
+vim_extra_features: []
+vim_extra_packages: []
+vim_plugin_autoremove: false
+vim_plugin_autoupdate: false
+vim_plugin_extra_packages: []
+vim_plugin_manager: "native"
+vim_version: "master"
+
