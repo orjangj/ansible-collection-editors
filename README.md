@@ -5,10 +5,7 @@ This collection includes Ansible roles and content to help with editor automatio
 Roles included in this collection:
 
   - `orjangj.editors.vscode` ([documentation](https://github.com/orjangj/ansible-collection-editors/blob/master/roles/vscode/README.md))
-
-## Supported distributions
-
-* Ubuntu 20.04
+  - `orjangj.editors.vim` ([documentation](https://github.com/orjangj/ansible-collection-editors/blob/master/roles/vim/README.md))
 
 ## Installation
 
@@ -32,26 +29,7 @@ collections:
 
 ## Usage
 
-Here's an example playbook which installs VSCode and configures user settings and extensions:
-
-```yaml
-- hosts: all
-
-  vars:
-    vscode_user_settings: vscode-settings.json
-    vscode_extensions:
-      - eamodio.gitlens
-      - hediet.vscode-drawio
-      - ms-azuretools.vscode-docker
-      - ms-python.python
-      - ms-vscode.cpptools
-      - ms-vscode-remote.remote-containers
-      - ms-vscode-remote.remote-ssh
-      - redhat.ansible
-
-  roles:
-    - orjangj.editors.vscode
-```
+See role documentation.
 
 ## License
 

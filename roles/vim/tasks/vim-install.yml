@@ -1,0 +1,50 @@
+---
+- name: Clone vim repository
+  ansible.builtin.git:
+    repo: https://github.com/vim/vim.git
+    depth: 1
+    dest: "{{ vim_clone_path }}"
+    version: "{{ vim_version }}"
+  register: clone
+
+- name: Check if extra vim features has changed
+  ansible.builtin.copy:
+    content: "{{ vim_extra_features }}"
+    dest: "{{ vim_clone_path }}/ansible_managed_extra_features.txt"
+  when: vim_extra_features
+  register: features
+
+- name: Ensure clean configuration cache
+  ansible.builtin.file:
+    path: "{{ vim_clone_path }}/src/auto/config.cache"
+    state: absent
+  when: features.changed or clone.changed
+
+- name: Configure vim
+  ansible.builtin.command:
+    cmd: "./configure {{ vim_extra_features | join('\n') }}"
+    chdir: "{{ vim_clone_path }}"
+  register: configure
+  when: features.changed or clone.changed
+
+- name: Compile vim
+  community.general.make:
+    chdir: "{{ vim_clone_path }}/src"
+  register: compile
+  when: configure.changed
+
+- name: Ensure vim install directory exists
+  ansible.builtin.file:
+    path: "{{ vim_install_dest }}"
+    state: directory,
+  when: compile.changed
+
+# /usr/local/bin is already Vim's default install destination, but doesn't hurt
+# being explicit about it. The path also requires privelege escalation to work.
+- name: Install vim
+  become: "{{ 'yes' if vim_install_dest == '/usr/local/bin' else 'no' }}"
+  community.general.make:
+    chdir: "{{ vim_clone_path }}/src"
+    target: "install DESTDIR={{ vim_install_dest }}"
+  when: compile.changed
+

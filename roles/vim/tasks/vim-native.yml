@@ -1,2 +1,42 @@
 ---
+- name: Ensure plugin directories exists
+  ansible.builtin.file:
+    path: "{{ vim_plugin_native_dir }}/{{ item }}"
+    state: directory
+  with_items:
+    - start
+    - opt
+
+- name: Gather currently installed plugins
+  ansible.builtin.find:
+    paths: "{{ vim_plugin_native_dir }}/{{ item }}"
+    recurse: no
+    file_type: directory
+  with_items:
+    - start
+    - opt
+  register: gather
+
+- name: Set facts for currently installed plugins
+  ansible.builtin.set_fact:
+    installed_plugins: "{{ installed_plugins|default([]) + [{'name': item|basename, 'type': item|dirname|basename}] }}"
+  with_items:
+    - "{{ gather.results[0].files | map(attribute='path') | list }}"  # start
+    - "{{ gather.results[1].files | map(attribute='path') | list }}"  # opt
+
+- name: Uninstall unused plugins
+  ansible.builtin.file:
+    path: "{{ vim_plugin_native_dir }}/{{ item.type }}/{{ item.name }}"
+    state: absent
+  with_items: "{{ installed_plugins }}"
+  when:
+    - vim_plugin_autoremove
+    - installed_plugins is defined
+    - item.name not in vim_plugin_install|map(attribute='name')|map('basename')|list
+
+- name: Install plugins
+  ansible.builtin.include_tasks: vim-native-install.yml
+  loop: "{{ vim_plugin_install }}"
+  loop_control:
+    loop_var: plugin
 
