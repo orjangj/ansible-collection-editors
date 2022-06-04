@@ -2,34 +2,34 @@
   ansible.builtin.git:
     repo: "https://github.com/{{ plugin.name }}.git"
     depth: 1
-    dest: "{{ vim_plugin_dir }}/{{ plugin.type }}/{{ plugin.name|basename }}"
+    dest: "{{ vim_plugin_native_dir }}/{{ plugin.type }}/{{ plugin.name|basename }}"
     version: "{{ plugin.version|default('HEAD') }}"
     update: "{{ vim_plugin_autoupdate }}"
   register: install
 
 - name: "{{ plugin.name }} : Ensure it's not duplicated in {{ 'start' if plugin.type == 'opt' else 'opt'}} directory"
   ansible.builtin.file:
-    path: "{{ vim_plugin_dir }}/{{ 'start' if plugin.type == 'opt' else 'opt'}}/{{ plugin.name|basename}}"
+    path: "{{ vim_plugin_native_dir }}/{{ 'start' if plugin.type == 'opt' else 'opt'}}/{{ plugin.name|basename}}"
     state: absent
 
 - name: "{{ plugin.name }} : Perform post-install hook"
   ansible.builtin.command:
     cmd: "{{ plugin.hook }}"
-    chdir: "{{ vim_plugin_dir }}/{{ plugin.type }}/{{ plugin.name|basename }}"
+    chdir: "{{ vim_plugin_native_dir }}/{{ plugin.type }}/{{ plugin.name|basename }}"
   when:
     - install.changed
     - plugin.hook is defined
 
 - name: "{{ plugin.name }} : Check if doc/ directory is included"
   ansible.builtin.stat:
-    path: "{{ vim_plugin_dir }}/{{ plugin.type }}/{{ plugin.name|basename }}/doc"
+    path: "{{ vim_plugin_native_dir }}/{{ plugin.type }}/{{ plugin.name|basename }}/doc"
   register: doc
   when: install.changed
 
 - name: "{{ plugin.name }} : Create helptags"
   ansible.builtin.command:
     cmd: "vim -u NONE -c 'helptags .' -c qa"
-    chdir: "{{ vim_plugin_dir }}/{{ plugin.type }}/{{ plugin.name|basename }}/doc"
+    chdir: "{{ vim_plugin_native_dir }}/{{ plugin.type }}/{{ plugin.name|basename }}/doc"
   when:
     - install.changed
     - doc.stat.isdir is defined

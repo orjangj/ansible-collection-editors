@@ -22,7 +22,7 @@
 
 - name: Configure vim
   ansible.builtin.command:
-    cmd: "./configure {{ vim_extra_features | join('\n') }}"
+    cmd: "./configure {{ vim_extra_features | join('\n') }} --prefix={{ vim_install_prefix }}"
     chdir: "{{ vim_clone_path }}"
   register: configure
   when: features.changed or clone.changed
@@ -35,16 +35,17 @@
 
 - name: Ensure vim install directory exists
   ansible.builtin.file:
-    path: "{{ vim_install_dest }}"
-    state: directory,
+    path: "{{ vim_install_prefix }}/bin"
+    state: directory
   when: compile.changed
 
 # /usr/local/bin is already Vim's default install destination, but doesn't hurt
 # being explicit about it. The path also requires privelege escalation to work.
 - name: Install vim
-  become: "{{ 'yes' if vim_install_dest == '/usr/local/bin' else 'no' }}"
+  become: "{{ 'yes' if vim_install_prefix == '/usr/local' else 'no' }}"
   community.general.make:
     chdir: "{{ vim_clone_path }}/src"
-    target: "install DESTDIR={{ vim_install_dest }}"
+    target: "install"
+  register: install
   when: compile.changed
 

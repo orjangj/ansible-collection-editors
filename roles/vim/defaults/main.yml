@@ -2,7 +2,7 @@
 vim_clone_path: "{{ ansible_user_dir }}/vim"
 vim_dotfiles: []
 vim_extra_features: []
-vim_install_dest: "/usr/local/bin"
+vim_install_prefix: "/usr/local"
 vim_plugin_autoremove: false
 vim_plugin_autoupdate: false
 vim_plugin_install: []

@@ -67,13 +67,14 @@ branch name is specified, then Vim may be updated on successive runs of this
 role if there are changes on remote origin. Use a tag or commit to lock the
 installed version of Vim.
 
-    vim_install_dest: "/usr/local/bin"
+    vim_install_prefix: "/usr/local"
 
 Where to install Vim. The default value is Vim's default install destination
-when installing from source. This path requires privelege escalation, so
-remember to use `-K` if you use the default value. It's, recommended to change
-the default value to i.e. `{{ ansible_user_dir }}/.local/bin` to avoid
-privelege escalation.
+(`/usr/local/bin`) when installing from source. This path requires privilege
+escalation, so remember to use `-K` if you use the default value. It's,
+recommended to change the default value to i.e. `{{ ansible_user_dir }}/.local`
+to avoid privelege escalation (just remember to add the local Vim to `PATH`, and
+make sure it comes before any other installed Vim in `PATH`).
 
     vim_clone_path: "{{ ansible_user_dir }}/vim"
 
@@ -154,17 +155,22 @@ plugin manager:
 
   vars:
     vim_version: "HEAD"
-    vim_install_dest: "{{ ansible_user_dir }}/.local/bin"
+    vim_install_prefix: "{{ ansible_user_dir }}/.local"
+    vim_extra_packages:
+      - "make"
+      - "clang"
+      - "libtool-bin"
+      - "python3-dev"
     vim_extra_features:
-        - "--enable-python3interp"
+      - "--enable-python3interp"
     vim_dotfiles:
-      - "{{ playbook_dir }}/files/.vimrc }}"
+      - "{{ playbook_dir }}/files/dotfiles/.vimrc"
+    vim_plugin_autoremove: true
+    vim_plugin_autoupdate: true
     vim_plugin_install:
       - { name: "junegunn/fzf", type: "start", hook: "./install --all" }
       - { name: "junegunn/fzf.vim", type: "start" }
       - { name: "ycm-core/YouCompleteMe", type: "start", hook: "./install.py" }
-    vim_plugin_autoupdate: true
-    vim_plugin_autoremove: true
 
   roles:
     - orjangj.editors.vim
@@ -196,10 +202,16 @@ manager example above, but with `vim-plug` instead.
 
   vars:
     vim_version: "HEAD"
+    vim_install_prefix: "{{ ansible_user_dir }}/.local"
+    vim_extra_packages:
+      - "make"
+      - "clang"
+      - "libtool-bin"
+      - "python3-dev"
     vim_extra_features:
-        - "--enable-python3interp"
+      - "--enable-python3interp"
     vim_dotfiles:
-      - "{{ playbook_dir }}/files/.vimrc"
+      - "{{ playbook_dir }}/files/dotfiles/.vimrc"
     vim_plugin_manager: "vim-plug"
     vim_plugin_autoremove: true
     vim_plugin_autoupdate: true
