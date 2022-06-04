@@ -1,0 +1,35 @@
+---
+- name: "Test : Verify Vim install"
+  block:
+    - name: "Check properties of Vim"
+      ansible.builtin.stat:
+        path: "{{ fact__vim_install_prefix.path }}/bin/vim"
+      register: rg__vim
+      failed_when: false
+
+    - name: "Verify Vim is installed correctly"
+      ansible.builtin.assert:
+        that: rg__vim.stat.exists and rg__vim.stat.executable
+        fail_msg: "Vim does not exist or is not executable"
+        quiet: yes
+
+    - name: "Check installed Vim version"
+      ansible.builtin.command:
+        cmd: "vim --version"
+      register: rg__vim_version
+      changed_when: false
+      failed_when: false
+
+    - name: "Verify the installed version of Vim is correct"
+      ansible.builtin.assert:
+        that:
+          - fact__vim_version.version in rg__vim_version.stdout_lines[0]
+          - fact__vim_version.patch in rg__vim_version.stdout_lines[1]
+        quiet: yes
+
+    - name: "Verify the extra features are enabled in Vim"
+      ansible.builtin.assert:
+        that: item in rg__vim_version.stdout
+        quiet: yes
+      with_items: "{{ fact__vim_extra_features }}"
+

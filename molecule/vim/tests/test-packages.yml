@@ -1,0 +1,5 @@
+---
+- name: "Test : Verify '{{ package }}' is installed"
+  ansible.builtin.assert:
+    that: "ansible_facts.packages['{{ package }}'] is defined"
+    quiet: yes

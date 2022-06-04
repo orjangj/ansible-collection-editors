@@ -1,0 +1,20 @@
+---
+- name: "Test | check for config file."
+  block:
+    - name: "Collect info about the dotfile"
+      ansible.builtin.stat:
+        path: "{{ dotfile.path }}/{{ dotfile.name }}"
+      register: rg__dotfile
+
+    - name: "Verify that '{{ dotfile.name }}' exists"
+      assert:
+        that: rg__dotfile.stat.exists
+        quiet: yes
+        fail_msg: "The dotfile '{{ dotfile.name }}' does not exist"
+
+    - name: "Verify mode of '{{ dotfile.name }}'."
+      assert:
+        that: "rg__dotfile.stat.mode == dotfile.mode"
+        quiet: yes
+        fail_msg: >
+          Expected mode {{ dotfile.mode }}, got {{ rg__dotfile.stat.mode }}

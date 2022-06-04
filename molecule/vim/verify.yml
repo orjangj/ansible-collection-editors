@@ -1,0 +1,88 @@
+---
+- name: "Test : Verify Vim, plugins, helptags and configurations."
+  hosts: all
+
+  tasks:
+    - name: "Test : Prepare Vim facts for tests"
+      ansible.builtin.set_fact:
+        fact__vim_version: { version: "8.2", patch: "5054" }
+        fact__vim_install_prefix: { path: "/usr/local", state: present, mode: "0755" }
+        fact__vim_extra_features:
+          - "+python3"  # --enable-python3interp
+        fact__vim_extra_packages:
+          - "make"
+          - "clang"
+          - "libtool-bin"
+          - "libpython3-dev"
+          - "python3-dev"
+
+    - name: "Test : Prepare dotfiles facts for tests"
+      ansible.builtin.set_fact:
+        fact__dotfiles:
+          - path: "{{ ansible_user_dir }}"
+            name: ".vimrc"
+            mode: "0644"
+
+    - name: "Test : Prepare Vim native plugin manager facts for tests (1/3)"
+      ansible.builtin.set_fact:
+        fact__vim_native_plugins_path: "{{ ansible_user_dir }}/.vim/pack/plugins"
+
+    - name: "Test : Prepare Vim native plugin manager facts for tests (2/3)"
+      ansible.builtin.set_fact:
+        fact__vim_native_plugins_dirs:
+          - path: "{{ fact__vim_native_plugins_path }}"
+            type: "directory"
+            mode: "0755"
+          - path: "{{ fact__vim_native_plugins_path }}/start"
+            type: "directory"
+            mode: "0755"
+          - path: "{{ fact__vim_native_plugins_path }}/opt"
+            type: "directory"
+            mode: "0755"
+
+    - name: "Test : Prepare Vim native plugin manager facts for tests (2/3)"
+      ansible.builtin.set_fact:
+        fact__vim_native_plugins:
+          - path: "{{ fact__vim_native_plugins_path }}/start/fzf"
+            type: "plugin"
+            mode: "0755"
+          - path: "{{ fact__vim_native_plugins_path }}/start/fzf.vim"
+            type: "plugin"
+            mode: "0755"
+          - path: "{{ fact__vim_native_plugins_path }}/start/YouCompleteMe"
+            type: "plugin"
+            mode: "0755"
+          - path: "{{ fact__vim_native_plugins_path }}/opt/tabular"
+            type: "plugin"
+            mode: "0755"
+
+    - name: "Test : Prepare package facts"
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: "Test : Run Vim install tests"
+      ansible.builtin.include_tasks: "{{ playbook_dir }}/tests/test-vim.yml"
+
+    - name: "Test : Run package tests"
+      ansible.builtin.include_tasks: "{{ playbook_dir }}/tests/test-packages.yml"
+      loop: "{{ fact__vim_extra_packages }}"
+      loop_control:
+        loop_var: package
+
+    - name: "Test : Run dotfiles tests"
+      ansible.builtin.include_tasks: "{{ playbook_dir }}/tests/test-dotfiles.yml"
+      loop: "{{ fact__dotfiles }}"
+      loop_control:
+        loop_var: dotfile
+
+    - name: "Test : Run plugin manager tests"
+      ansible.builtin.include_tasks: "{{ playbook_dir }}/tests/test-plugin-manager.yml"
+      loop: "{{ fact__vim_native_plugins_dirs + fact__vim_native_plugins }}"
+      loop_control:
+        loop_var: dir
+
+    - name: "Test : Run helptags tests"
+      ansible.builtin.include_tasks: "{{ playbook_dir }}/tests/test-helptags.yml"
+      loop: "{{ fact__vim_native_plugins }}"
+      loop_control:
+        loop_var: plugin

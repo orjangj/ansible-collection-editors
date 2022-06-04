@@ -1,0 +1,26 @@
+---
+- name: "Test : Check plugins and directories"
+  block:
+    - name: "Set the plugin directory name"
+      ansible.builtin.set_fact:
+        dir_name: "{{ dir.path|basename }}"
+
+    - name: "Gather properties of the '{{ dir.path }}' {{ dir.type }}"
+      ansible.builtin.stat:
+        path: "{{ dir.path }}"
+      register: rg__path
+
+    - name: "Verify the '{{ dir_name }}' {{ dir.type }} exists"
+      assert:
+        that: rg__path.stat.exists
+        quiet: yes
+
+    - name: "Verify that '{{ dir.path }}' is a directory"
+      assert:
+        that: rg__path.stat.isdir
+        quiet: yes
+
+    - name: "Verify '{{ dir.path }}' mode is {{ dir.mode }}"
+      assert:
+        that: rg__path.stat.mode == dir.mode
+        quiet: yes

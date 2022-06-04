@@ -1,0 +1,38 @@
+---
+- name: Converge
+  hosts: all
+
+  collections:
+
+  vars:
+    vim_version: "v8.2.5054"
+    vim_extra_packages:
+      - "make"
+      - "clang"
+      - "libtool-bin"
+      - "libpython3-dev"
+      - "python3-dev"
+      - "curl"
+      - "cmake"
+    vim_extra_features:
+      - "--enable-python3interp"
+    vim_dotfiles:
+      - "{{ playbook_dir }}/files/dotfiles/.vimrc"
+    vim_plugin_install:
+      - name: "junegunn/fzf"
+        type: "start"
+        version: "0.30.0"
+        hook: "./install --all"
+      - name: "junegunn/fzf.vim"
+        type: "start"
+      - name: "ycm-core/YouCompleteMe"
+        type: "start"
+        hook: "./install.py"
+      - name: "godlygeek/tabular"
+        type: "opt"
+
+  tasks:
+    - name: Run Vim role
+      ansible.builtin.include_role:
+        name: "orjangj.editors.vim"
+

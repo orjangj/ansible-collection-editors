@@ -1,0 +1,17 @@
+---
+- name: "Test | check for helptags."
+  block:
+    - name: "Set the plugin directory name"
+      ansible.builtin.set_fact:
+        plugin_name: "{{ plugin.path|basename }}"
+        plugin_helptags_file: "{{ plugin.path }}/doc/tags"
+
+    - name: "Collect info about the plugin's tags file."
+      ansible.builtin.stat:
+        path: "{{ plugin_helptags_file }}"
+      register: rg__plugin_tags
+
+    - name: "Verify existence of helptags file for the {{ plugin_name }} plugin"
+      assert:
+        that: "rg__plugin_tags.stat.exists"
+        quiet: yes
