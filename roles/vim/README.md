@@ -95,13 +95,11 @@ See [Vim](https://github.com/vim/vim) documentation for more information.
 
     vim_dotfiles: []
 
-List of dotfiles to install in "{{ ansible_user_dir }}" directory.
+List of dotfiles to install in `{{ ansible_user_dir }}` directory.
 
     vim_plugin_manager: "native"
 
-The plugin manager to use. The following plugin managers are supported:
-- `native`
-- `vim-plug`
+The plugin manager to use (`native`, `vim-plug`).
 
     vim_plugin_install: []
 
@@ -111,15 +109,15 @@ the `native` plugin manager.
 ```yaml
 # Examples
 vim_plugins_install:
-    - name: "junegunn/fzf"  # Shorthand notation -> fetches from https://github.com/junegunn/fzf
-      type: "start"  # Install plugin to automatically load on Vim startup
-      hook: "./install --all"
-      version: "0.30.0"  # Use tagged version. 'HEAD' is the default if left undefined.
-    - name: "junegunn/fzf.vim"
-      type: "start"
-    - name: "ycm-core/YouCompleteMe"
-      type: "opt"  # Install plugin as optional. Can be loaded inside Vim using :packadd
-      hook: "./install.py" 
+  - name: "junegunn/fzf"  # Shorthand notation -> fetches from https://github.com/junegunn/fzf
+    type: "start"  # Install plugin to automatically load on Vim startup
+    hook: "./install --all"
+    version: "0.30.0"  # Use tagged version. 'HEAD' is the default if left undefined.
+  - name: "junegunn/fzf.vim"
+    type: "start"
+  - name: "ycm-core/YouCompleteMe"
+    type: "opt"  # Install plugin as optional. Can be loaded inside Vim using :packadd
+    hook: "./install.py" 
 ```
 
     vim_plugin_autoremove: false
