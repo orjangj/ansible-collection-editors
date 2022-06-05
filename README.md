@@ -1,5 +1,7 @@
 # Ansible collection for editors
 
+[![CI](https://github.com/orjangj/ansible-collection-editors/workflows/CI/badge.svg?event=push)](https://github.com/orjangj/ansible-collection-editors/actions?query=workflow%3ACI)
+
 This collection includes Ansible roles and content to help with editor automation.
 
 Roles included in this collection:
