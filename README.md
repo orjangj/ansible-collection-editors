@@ -9,29 +9,48 @@ Roles included in this collection:
   - `orjangj.editors.vscode` ([documentation](https://github.com/orjangj/ansible-collection-editors/blob/master/roles/vscode/README.md))
   - `orjangj.editors.vim` ([documentation](https://github.com/orjangj/ansible-collection-editors/blob/master/roles/vim/README.md))
 
-## Installation
-
-Currently not installable from Ansible Galaxy. Historically this collection has been for personal use only.
-
-Install using `ansible-galaxy` with git url:
-
-```
-ansible-galaxy collection install git+https://github.com/orjangj/ansible-collection-editors.git
-```
-
-Or include this collection in your playbook's `requirements.yml` file:
-
-```
----
-collections:
-  - name: https://github.com/orjangj/ansible-collection-editors.git
-    type: git
-    version: master
-```
-
 ## Usage
 
-See role documentation.
+Install this collection locally:
+
+```bash
+ansible-galaxy collection install orjangj.editors -p ./collections
+```
+
+Use the roles from the collection in your playbooks:
+
+```yaml
+---
+- hosts: all
+
+  roles:
+    - role: orjangj.editors.vscode
+      vars:
+        vscode_user_settings: "{{ playbook_dir }}/files/vscode-settings.json"
+        vscode_extensions:
+          - ms-azuretools.vscode-docker
+          - ms-python.python
+    - role: orjangj.editors.vim
+      vars:
+        vim_version: "HEAD"
+        vim_extra_packages:
+          - "make"
+          - "clang"
+          - "libtool-bin"
+          - "python3-dev"
+        vim_extra_features:
+          - "--enable-python3interp"
+        vim_dotfiles:
+          - "{{ playbook_dir }}/files/.vimrc"
+        vim_plugin_autoremove: true
+        vim_plugin_autoupdate: true
+        vim_plugin_install:
+          - { name: "junegunn/fzf", type: "start", hook: "./install --all" }
+          - { name: "junegunn/fzf.vim", type: "start" }
+          - { name: "ycm-core/YouCompleteMe", type: "start", hook: "./install.py" }
+```
+
+See role documentation for more detailed usage of each role.
 
 ## License
 

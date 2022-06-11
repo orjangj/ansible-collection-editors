@@ -1,0 +1,33 @@
+---
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+defaults:
+  run:
+    working-directory: 'orjangj.editors'
+
+jobs:
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: 'orjangj.editors'
+
+      - name: Autogenerate galaxy.yml
+        run: sh scripts/galaxy.sh -v '${{ github.ref_name }}'
+
+      - name: Release to Ansible Galaxy
+        uses: artis3n/ansible_galaxy_collection@v2
+        with:
+          api_key: '${{ secrets.ANSIBLE_GALAXY_TOKEN }}'
+          collection_dir: 'orjangj.editors'
+

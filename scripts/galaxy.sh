@@ -38,9 +38,10 @@ description: This collection includes Ansible roles and content to help with edi
 license:
   - MIT
 
-license_file: 'LICENSE'
-
-tags: []
+tags:
+  - editors
+  - vscode
+  - vim
 
 dependencies: {}
 
@@ -52,6 +53,10 @@ homepage: https://github.com/orjangj/ansible-collection-editors
 
 issues: https://github.com/orjangj/ansible-collection-editors/issues
 
-build_ignore: []
+build_ignore:
+  - fixture
+  - molecule
+  - scripts
+  - '*.tar.gz'
 EOF
 

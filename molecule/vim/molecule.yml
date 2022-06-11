@@ -3,7 +3,7 @@ dependency:
   name: shell
   command: >
     rm -rf galaxy.yml && rm -rf fixture/ \
-    && sh galaxy.sh -v 1.0.0 \
+    && sh scripts/galaxy.sh -v 1.0.0 \
     && mkdir -p fixture/ansible_collections \
     && ansible-galaxy collection build \
          --force \
