@@ -25,9 +25,6 @@
         hook: "./install --all"
       - name: "junegunn/fzf.vim"
         type: "start"
-      - name: "ycm-core/YouCompleteMe"
-        type: "start"
-        hook: "./install.py"
       - name: "godlygeek/tabular"
         type: "opt"
 
