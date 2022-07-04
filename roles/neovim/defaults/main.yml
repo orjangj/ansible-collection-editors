@@ -1,0 +1,8 @@
+---
+neovim_configs: []
+neovim_packages: []
+neovim_plugin_autoremove: false
+neovim_plugin_autoupdate: false
+neovim_plugin_manager: "vim-plug"
+neovim_version: ""
+
