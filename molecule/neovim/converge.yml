@@ -1,0 +1,16 @@
+---
+- name: Converge
+  hosts: all
+
+  vars:
+    neovim_version: "v0.7.0"
+    neovim_configs:
+      - "{{ playbook_dir }}/files/init.vim"
+    neovim_plugin_autoupdate: true
+    neovim_plugin_autoremove: true
+
+  tasks:
+    - name: Run Neovim role
+      ansible.builtin.include_role:
+        name: "orjangj.editors.neovim"
+

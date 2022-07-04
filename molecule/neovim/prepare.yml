@@ -1,0 +1,13 @@
+---
+- name: Prepare
+  hosts: all
+  tasks:
+    - name: "Prepare : Install packages for testing"
+      ansible.builtin.apt:
+        name:
+          - git
+          - ripgrep
+          - curl
+        state: present
+        update_cache: true
+
